@@ -100,7 +100,6 @@ char* format(unsigned int num) {
 			  exit(-1);
 			}
     snprintf(result,8, "%06o", num);
-
     return result;
 }
 
@@ -112,6 +111,13 @@ void punerepezero2(char *string,int inceput,int final)
     }
 }
 
+void punerespatiu(char *string,int final)
+{
+  for(int i=0;i<final;i++)
+    {
+      string[i]=' ';
+    }
+}
 
 int main(int argc,char **argv)
 {
@@ -147,6 +153,7 @@ int main(int argc,char **argv)
       punerepezero(buf.devminor,8);
       punerepezero(buf.prefix,155);
       punerepezero(buf.padding,12);
+      punerespatiu(buf.chksum,8);
       char *checksum=format(calcularechecksum(&buf));
       strcpy(buf.chksum,checksum);
       printf("%s\n",buf.chksum);
