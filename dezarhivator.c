@@ -1,8 +1,9 @@
-include <stdint.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+
 
 typedef struct
 {                              /* byte offset */
@@ -54,44 +55,44 @@ int main(int argc,char **argv)
   FILE *fin=fopen(argv[1],"rb");
   if(fin==NULL)
     {
-      perror("eroare");
+      perror("eroare1");
       exit(-1);
     }
   Header buf;
   long cursor=0;
   while(fread(&buf,sizeof(Header),1,fin)>0)
     {
+      if(strcmp(buf.name,"")==0)
+	{
+	  break;
+	}
       FILE *fout=fopen(buf.name,"wb");
       if(fout==NULL)
 	{
-	  perror("eroare");
+	  perror("eroare2");
 	  exit(-1);
 	}
       cursor=ftell(fin);
       long size2=strtol(buf.size,NULL,8);
       int c=0;
+      long aux=cursor+size2;
       cursor+=transformare(size2);
-      for(;;)
-	{
-	  if(ftell(fin)==cursor)
-	    {
-	      break;
-	    }
+      while(ftell(fin)!=cursor)
+      	{
 	  c=fgetc(fin);
-	  if(ftell(fin)<=(cursor+size2)){
-	    printf("%ld\n",ftell(fin));
+	  if(ftell(fin)<=aux){
 	  fwrite(&c,sizeof(char),1,fout);
 	  }
 	}
       if(fclose(fout)!=0)
 	{
-	  perror("eroare");
+	  perror("eroare3");
 	  exit(-1);
 	}
     }
   if(fclose(fin)!=0)
     {
-      perror("eroare");exit(-1);
+      perror("eroare4");exit(-1);
     }
   return 0;
 }
