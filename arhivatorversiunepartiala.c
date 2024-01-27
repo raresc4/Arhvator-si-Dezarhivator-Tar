@@ -32,7 +32,7 @@ char *marime2(long int numar) {
       perror("eroare");
         exit(-1);
     }
-    snprintf(rezultat, 12, "%011ld", numar);
+    snprintf(rezultat, 12, "%011lo", numar);
     return rezultat;
 }
 
@@ -127,33 +127,77 @@ int main(int argc,char **argv)
       perror("eroare");
       exit(-1);
     }
+  Header buf1;
+  fread(&buf1,sizeof(Header),1,fin);
+  printf("%s\n",buf1.size);
   long int timp=time(NULL);
-  for(int i=1;i<argc;i++)
+  for(int i=2;i<argc;i++)
     {
       Header buf;
-      strcpy(buf.name,argv[i]);
-      punerepezero2(buf.name,strlen(argv[i]),99);
+      strcpy(buf.name,argv[i]); 
+      for(int j=strlen(argv[i]);j<99;j++)
+	{
+	  buf.name[j]=0x00;
+	}
+      buf.name[99]='\0';
       strcpy(buf.mode,"0000644");
+      buf.mode[7]='\0';
       strcpy(buf.uid,"0001750");
+      buf.uid[7]='\0';
       strcpy(buf.gid,"0001750");
+      buf.gid[7]='\0';
       char *aux = marime2(marime(argv[i]));
       strcpy(buf.size,aux);
+      buf.size[11]='\0';
       char *aux2=functietimp(timp);
       strcpy(buf.mtime,aux2);
+      buf.mtime[11]='\0';
       buf.typeflag='0';
-      punerepezero(buf.linkname,100);
+      for(int j=0;j<99;j++)
+	{
+	  buf.linkname[j]=0x00;
+	}
+      buf.name[99]='\0';
       strcpy(buf.magic,"ustar");
       buf.version[0]=0x00;
       buf.version[1]=0x00;
       strcpy(buf.uname,getlogin());
-      punerepezero2(buf.uname,strlen(getlogin()),31);
+      for(int j=strlen(getlogin());j<31;j++)
+	{
+	  buf.uname[j]=0x00;
+	}
+      buf.uname[31]='\0';
       strcpy(buf.gname,getlogin());
-      punerepezero2(buf.gname,strlen(getlogin()),31);
-      punerepezero(buf.devmajor,8);
-      punerepezero(buf.devminor,8);
-      punerepezero(buf.prefix,155);
-      punerepezero(buf.padding,12);
-      punerespatiu(buf.chksum,8);
+      for(int j=strlen(getlogin());j<31;j++)
+	{
+	  buf.gname[j]=0x00;
+	}
+      buf.gname[31]='\0';
+      for(int j=0;j<7;j++)
+	{
+	  buf.devmajor[j]=0x00;
+	}
+      buf.devmajor[7]='\0';
+      for(int j=0;j<7;j++)
+	{
+	  buf.devminor[j]=0x00;
+	}
+      buf.devminor[7]='\0';
+      for(int j=0;j<154;j++)
+	{
+	  buf.prefix[j]=0x00;
+	}
+      buf.prefix[154]='\0';
+      for(int j=0;j<11;j++)
+	{
+	  buf.padding[j]=0x00;
+	}
+      buf.padding[11]='\0';
+      for(int j=0;j<7;j++)
+	{
+	  buf.chksum[j]=0x00;
+	}
+      buf.chksum[7]='\0';
       char *checksum=format(calcularechecksum(&buf));
       strcpy(buf.chksum,checksum);
       printf("%s\n",buf.chksum);
