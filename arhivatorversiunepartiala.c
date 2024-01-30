@@ -6,6 +6,29 @@
 #include <time.h>
 #include <unistd.h> 
 
+long transformare(long size2)
+{
+  int i=0;
+  if(size2%512==0)
+    {
+      return size2;
+    }
+  else
+    {
+      for(;;)
+	{
+	  if((512*i)>size2)
+	    {
+	      return 512*i;
+	    }
+	  else
+	    {
+	      i++;
+	    }
+	}
+    }
+}
+
 
 long int marime(char *nume)
 {
@@ -121,18 +144,21 @@ void punerespatiu(char *string,int final)
 
 int main(int argc,char **argv)
 {
-  FILE *fin=fopen(argv[1],"rb");
-  if(fin==NULL)
+  FILE *fout=fopen(argv[1],"wb");
+  if(fout==NULL)
     {
       perror("eroare");
       exit(-1);
     }
-  Header buf1;
-  fread(&buf1,sizeof(Header),1,fin);
-  printf("%s\n",buf1.size);
   long int timp=time(NULL);
   for(int i=2;i<argc;i++)
     {
+      FILE *fin=fopen(argv[i],"rb");
+      if(fin==NULL)
+	{
+	  perror("eroare");
+	  exit(-1);
+	}
       Header buf;
       strcpy(buf.name,argv[i]); 
       for(int j=strlen(argv[i]);j<99;j++)
@@ -200,15 +226,39 @@ int main(int argc,char **argv)
       buf.chksum[7]='\0';
       char *checksum=format(calcularechecksum(&buf));
       strcpy(buf.chksum,checksum);
-      printf("%s\n",buf.chksum);
+      fwrite(&buf,sizeof(Header),1,fout);
+      fseek(fin,512,SEEK_SET);
+      long cursor=ftell(fin);
+      int stop=cursor+marime(argv[i]);
+      int c=0;
+      while(cursor!=(transformare(marime(argv[i]))))
+	{
+	  if(cursor<=stop)
+	    {
+	      c=fgetc(fin);
+	      fwrite(&c,sizeof(char),1,fout);
+	      cursor++;
+	    }
+	  else
+	    {
+	      cursor++;
+	    }
+	}
 	free(checksum);
       free(aux);
-      free(aux2);
+   free(aux2);
+   
+     if(fclose(fin)!=0)
+	{
+	  perror("eroare");
+	  exit(-1);
+	}
     }
-  if(fclose(fin)!=0)
+  if(fclose(fout)!=0)
     {
       perror("eroare");
       exit(-1);
     }
   return 0;
 } 
+
