@@ -32,15 +32,13 @@ Suppose we have the following files and directories:
 
 file1.txt
 file2.txt
-folder/
-    └── subfile.txt
+folder/subfile.txt
 After archiving using archive.c, we obtain archive.tar. After extracting archive.tar using extract.c, we get:
 
 archive.tar
 file1.txt
 file2.txt
-folder/
-    └── subfile.txt
+folder/subfile.txt
     
 # License
 
